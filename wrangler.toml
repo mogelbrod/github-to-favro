@@ -1,0 +1,9 @@
+name = "github-to-favro"
+main = "src/index.ts"
+compatibility_date = "2022-10-06"
+node_compat = true
+workers_dev = true
+account_id = "81468565ecf8a1fdd554507d3209f34f"
+
+[vars]
+GITHUB_SECRET = "hallåistugan"
