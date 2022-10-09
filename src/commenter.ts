@@ -25,20 +25,36 @@ export async function githubEventToComments(
     /** Git push to a repository. */
     case 'push': {
 			const promises: Promise<any>[] = []
+
+      // Created branch
+      if (event.payload.created) {
+        const ref = event.payload
+        const branch = ref.ref.replace(/^refs\/heads\//i, '')
+				promises.push(maybePostFavroComments({
+					type: 'branch',
+					url: ref.compare,
+					title: branch,
+					author: ref.sender,
+          repo: event.payload.repository,
+          favro,
+				}))
+      }
+
+      // Pushed commits
 			for (let ref of event.payload.commits) {
 				if (!ref.distinct) { continue }
-				const author = ref.author.name || ref.author.username || ref.author.email
-        const username = ref.author.username || ref.committer.username
+        const msgParts = ref.message.match(/^([^\n]*)(?:\n{1,}(.+))?/s)
 				promises.push(maybePostFavroComments({
 					type: 'commit',
 					url: ref.url,
-					title: ref.message,
+					title: msgParts?.[1] || ref.message,
+          body: msgParts?.[2],
 					author: ref.author,
-          authorUrl: username ? 'https://github.com/' + username : undefined,
           repo: event.payload.repository,
           favro,
 				}))
 			}
+
 			return Promise.all(promises).then(results => results.flat())
     }
 
@@ -53,7 +69,7 @@ export async function githubEventToComments(
       return maybePostFavroComments({
 				type: event.name.replace(/_comment$/, '') + ' comment',
 				url: ref.html_url,
-				title: ref.body,
+				body: ref.body,
 				author: ref.user,
         repo: event.payload.repository,
         favro,
@@ -72,6 +88,7 @@ export async function githubEventToComments(
 				type: 'discussion',
 				url: ref.html_url,
 				title: ref.title,
+        body: ref.body,
 				author: ref.user,
         repo: event.payload.repository,
         favro,
@@ -89,7 +106,7 @@ export async function githubEventToComments(
 				type: 'issue',
 				url: ref.html_url,
 				title: ref.title,
-				body: ref.title + ' ' + ref.body,
+				body: ref.body,
 				author: ref.user,
         repo: event.payload.repository,
         favro,
@@ -103,7 +120,7 @@ export async function githubEventToComments(
       return maybePostFavroComments({
 				type: 'project card',
 				url: ref.url,
-				title: ref.note || '',
+				title: ref.note,
 				author: ref.creator,
         repo: event.payload.repository,
         favro,
@@ -124,7 +141,7 @@ export async function githubEventToComments(
 				type: 'PR',
 				url: ref.html_url,
 				title: ref.title,
-				body: ref.title + ' ' + ref.body,
+				body: ref.body,
 				author: ref.user,
         repo: event.payload.repository,
         favro,
@@ -138,7 +155,7 @@ export async function githubEventToComments(
       return maybePostFavroComments({
 				type: 'PR review',
 				url: ref.html_url,
-				title: ref.body || '',
+				body: ref.body,
 				author: ref.user,
         repo: event.payload.repository,
         favro,
@@ -152,7 +169,7 @@ export async function githubEventToComments(
       return maybePostFavroComments({
 				type: 'PR review comment',
 				url: ref.html_url,
-				title: ref.body,
+				body: ref.body,
 				author: ref.user,
         repo: event.payload.repository,
         favro,
@@ -188,8 +205,8 @@ export async function maybePostFavroComments(opts: {
   favro: Favro,
 	type: string,
 	url: string,
-	title?: string,
-	body?: string,
+	title?: string | null,
+	body?: string | null,
 	repo?: Repository,
 	author: User | { name?: string | null, username?: string | null, email?: string | null } | string,
 	authorUrl?: string,
@@ -224,6 +241,9 @@ export async function maybePostFavroComments(opts: {
     // User object unfortunately doesn't include name, only login
 		author = author.name || authorAny.login || authorAny.username || author.email
 		authorUrl ??= authorAny.html_url || authorAny.url
+    if (!authorUrl && (authorAny.login || authorAny.username)) {
+      authorUrl = 'https://github.com/' + (authorAny.login || authorAny.username)
+    }
 	}
 	author ||= 'unknown'
 	if (authorUrl) {
@@ -234,10 +254,11 @@ export async function maybePostFavroComments(opts: {
   const type = opts.type.charAt(0).toUpperCase() + opts.type.slice(1)
 
 	const comment = [
-		`[**${type}**](${opts.url})`,
+		`[${type}](${opts.url})`,
 		!!opts.repo && `*in [${opts.repo.full_name}](${opts.repo.html_url})*`,
 		!!author && `*by ${author}*:`,
-		!!opts.title && `\n${opts.title}`,
+		!!opts.title && `\n[**${opts.title}**](${opts.url})`,
+		!!opts.body && `\n${opts.body}`,
 	].filter(Boolean).join(' ')
 
   if (favro) {
