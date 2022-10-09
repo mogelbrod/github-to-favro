@@ -57,12 +57,12 @@ up each Github webhook.
 
 The worker requires these environment variables to be defined to function:
 
-- `FAVRO_PREFIX`: The Favro card ID prefix used to identify cards:
+- `FAVRO_PREFIX`: The Favro card ID prefix used to identify cards:<br>
   `ABC` if card IDs follow the pattern `ABC-123`
-- `FAVRO_ORG`: The Favro organization ID, can be determined from the Favro web URL:
+- `FAVRO_ORG`: The Favro organization ID, can be determined from the Favro web URL:<br>
   `https://favro.com/organization/{FAVRO_ORG}/...`
-- `FAVRO_AUTH`: Favro API Authentication header for the user to impersonate including
-  either password (`email:password`) or Favro access tokens (`email:access-token`)
+- `FAVRO_AUTH`: Favro API Authentication header for the user to impersonate, including
+  either password (`email:password`) or Favro access token (`email:access-token`)
 - `GITHUB_WEBHOOK_SECRET`: An arbitrary string used to authenticate the incoming
   Github webhooks
 
@@ -87,8 +87,8 @@ Enter the following in the form:
 * Payload URL: URL to the published Cloudflare worker (output when running `wrangler publish`)
 * Content type: `application/json`
 * Secret: The value of the `GITHUB_WEBHOOK_SECRET` chosen in [Worker secrets](#worker-secrets)
-* Events to trigger the webhook: _everything_, or the individual events you're interested in, typically:
-  Pushes, branch/tag creation, all commit/discussion/issue/pull request events, project cards & releases
+* Events to trigger the webhook: _everything_, or the individual events you're interested in, typically:<br>
+  pushes, branch/tag creation, all commit/discussion/issue/pull request events, project cards & releases
 
 Once the webhook has been created everything should be set up.  You can now try
 out the integration by pushing a commit that references an existing Favro card
