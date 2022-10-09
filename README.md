@@ -87,7 +87,8 @@ Enter the following in the form:
 * Payload URL: URL to the published Cloudflare worker (output when running `wrangler publish`)
 * Content type: `application/json`
 * Secret: The value of the `GITHUB_WEBHOOK_SECRET` chosen in [Worker secrets](#worker-secrets)
-* Events to trigger the webhook: _everything_, or the individual events you're interested in.
+* Events to trigger the webhook: _everything_, or the individual events you're interested in, typically:
+  Pushes, branch/tag creation, all commit/discussion/issue/pull request events, project cards & releases
 
 Once the webhook has been created everything should be set up.  You can now try
 out the integration by pushing a commit that references an existing Favro card
