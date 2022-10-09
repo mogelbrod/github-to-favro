@@ -18,7 +18,7 @@ You'll need [`node`](https://nodejs.org/en/download/) and
 ```shell
 git clone git@github.com:mogelbrod/github-to-favro.git
 cd github-to-favro
-npm install
+npm install # installs the `wrangler` CLI together with remaining dependencies
 ```
 
 Installing `wrangler` via NPM on ARM Macs is not supported as of October 2022,
@@ -27,7 +27,10 @@ instead follow the instructions in
 
 ### Authenticate `wrangler`
 
-Log in using the cloudflare credentials available via 1password:
+If you do not yet have a Cloudflare account you can sign up for free on
+<https://dash.cloudflare.com/sign-up/workers>.
+
+Once you have a Cloudflare account you need to login using the `wrangler` CLI:
 ```shell
 wrangler login
 ```
