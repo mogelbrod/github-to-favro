@@ -4,8 +4,8 @@ A [Cloudflare worker](https://developers.cloudflare.com/workers/) that posts
 [Favro card comments](https://favro.com/developer/) in response to receiving various
 [Github webhook](https://docs.github.com/en/developers/webhooks-and-events/webhooks/) requests.
 
-Inspects incoming webhook requests for references to Favro card IDs. If any are
-detected the worker will then attempt to post a comment to the corresponding
+Inspects incoming webhook requests for references to Favro card IDs (`ABC-123` or similar).
+If any are detected the worker will then attempt to post a comment to the corresponding
 Favro card with a link to the commit/issue/PR/etc. which referenced it.
 
 <img width="393" alt="Screenshot of Favro card with comment posted by worker" src="https://user-images.githubusercontent.com/150084/194759250-4b714388-71cc-4f49-9154-ef4e6b74f816.png">
@@ -58,16 +58,13 @@ up each Github webhook.
 The worker requires these environment variables to be defined to function:
 
 - `FAVRO_PREFIX`: The Favro card ID prefix used to identify cards:
-  `ABC` if card IDs follow the pattern `ABC-123`.
-  `https://favro.com/organization/{FAVRO_ORG}/...`
+  `ABC` if card IDs follow the pattern `ABC-123`
 - `FAVRO_ORG`: The Favro organization ID, can be determined from the Favro web URL:
   `https://favro.com/organization/{FAVRO_ORG}/...`
-- `FAVRO_AUTH`: Favro API Authentication header for the user to impersonate.
-  Authentication is currently possible using either password (`email:password`) or
-  Favro access tokens (`email:access-token`):
-  `favro-user@domain.com:access-token`
+- `FAVRO_AUTH`: Favro API Authentication header for the user to impersonate including
+  either password (`email:password`) or Favro access tokens (`email:access-token`)
 - `GITHUB_WEBHOOK_SECRET`: An arbitrary string used to authenticate the incoming
-  Github webhooks.
+  Github webhooks
 
 These can quickly be saved to Cloudflare using `wrangler`:
 
