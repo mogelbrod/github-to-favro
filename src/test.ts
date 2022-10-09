@@ -14,6 +14,7 @@ import { githubEventToComments } from './commenter'
 const tests = {
   issue: '',
   push: '',
+  branch: '',
 } as const
 
 const testsArray = Object.keys(tests)
