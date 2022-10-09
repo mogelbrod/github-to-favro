@@ -8,6 +8,8 @@ Inspects incoming webhook requests for references to Favro card IDs. If any are
 detected the worker will then attempt to post a comment to the corresponding
 Favro card with a link to the commit/issue/PR/etc. which referenced it.
 
+<img width="393" alt="Screenshot of Favro card with comment posted by worker" src="https://user-images.githubusercontent.com/150084/194759250-4b714388-71cc-4f49-9154-ef4e6b74f816.png">
+
 ## Getting started
 
 You'll need [`node`](https://nodejs.org/en/download/) and
