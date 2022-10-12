@@ -189,18 +189,6 @@ export async function githubEventToComments(
   return []
 }
 
-/*
-curl -H 'organizationId: 86ba35bfb4e08917e2b8226e' -u 'victor@soundtrackyourbrand.com:btGYdofgybODGJc7w1HppMvoL-md4NB9X6dtxJC30Bu' 'https://favro.com/api/v1/cards?cardSequentialId=Sou-47482' | jq '.entities[].cardCommonId'
-
-curl -H 'organizationId: 86ba35bfb4e08917e2b8226e' -u 'victor@soundtrackyourbrand.com:btGYdofgybODGJc7w1HppMvoL-md4NB9X6dtxJC30Bu' \
-    -X POST "https://favro.com/api/v1/comments" \
-    -H "Content-Type: application/json" \
-    -d '{
-        "cardCommonId": "cc0e60cce4ff112619940619",
-        "comment": "Sent from *bold*, [link](https://google.com).\\nNew line.\\n\\nNew paragraph."
-    }'
-*/
-
 export async function maybePostFavroComments(opts: {
   favro: Favro,
 	type: string,
