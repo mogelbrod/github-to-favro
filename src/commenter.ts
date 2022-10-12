@@ -24,38 +24,38 @@ export async function githubEventToComments(
   switch (event.name) {
     /** Git push to a repository. */
     case 'push': {
-			const promises: Promise<any>[] = []
+      const promises: Promise<any>[] = []
 
       // Created branch
       if (event.payload.created) {
         const ref = event.payload
         const branch = ref.ref.replace(/^refs\/heads\//i, '')
-				promises.push(maybePostFavroComments({
-					type: 'branch',
-					url: ref.compare,
-					title: branch,
-					author: ref.sender,
+        promises.push(maybePostFavroComments({
+          type: 'branch',
+          url: ref.compare,
+          title: branch,
+          author: ref.sender,
           repo: event.payload.repository,
           favro,
-				}))
+        }))
       }
 
       // Pushed commits
-			for (let ref of event.payload.commits) {
-				if (!ref.distinct) { continue }
+      for (let ref of event.payload.commits) {
+        if (!ref.distinct) { continue }
         const msgParts = ref.message.match(/^([^\n]*)(?:\n{1,}(.+))?/s)
-				promises.push(maybePostFavroComments({
-					type: 'commit',
-					url: ref.url,
-					title: msgParts?.[1] || ref.message,
+        promises.push(maybePostFavroComments({
+          type: 'commit',
+          url: ref.url,
+          title: msgParts?.[1] || ref.message,
           body: msgParts?.[2],
-					author: ref.author,
+          author: ref.author,
           repo: event.payload.repository,
           favro,
-				}))
-			}
+        }))
+      }
 
-			return Promise.all(promises).then(results => results.flat())
+      return Promise.all(promises).then(results => results.flat())
     }
 
     /** Discussion comment created, edited, or deleted. */
@@ -64,16 +64,16 @@ export async function githubEventToComments(
     case 'commit_comment':
     /** Issue comment created, edited, or deleted. */
     case 'issue_comment': {
-			if (event.payload.action !== 'created') { break }
+      if (event.payload.action !== 'created') { break }
       const ref = event.payload.comment
       return maybePostFavroComments({
-				type: event.name.replace(/_comment$/, '') + ' comment',
-				url: ref.html_url,
-				body: ref.body,
-				author: ref.user,
+        type: event.name.replace(/_comment$/, '') + ' comment',
+        url: ref.html_url,
+        body: ref.body,
+        author: ref.user,
         repo: event.payload.repository,
         favro,
-			})
+      })
     }
 
     /**
@@ -82,17 +82,18 @@ export async function githubEventToComments(
      * changed, or was deleted.
      */
     case 'discussion': {
-			if (event.payload.action !== 'created') { break }
+      if (event.payload.action !== 'created') { break }
       const ref = event.payload.discussion
       return maybePostFavroComments({
-				type: 'discussion',
-				url: ref.html_url,
-				title: ref.title,
+        type: 'discussion',
+        url: ref.html_url,
+        title: ref.title,
         body: ref.body,
-				author: ref.user,
+        omitBody: true,
+        author: ref.user,
         repo: event.payload.repository,
         favro,
-			})
+      })
     }
 
     /**
@@ -103,28 +104,28 @@ export async function githubEventToComments(
     case 'issues': {
       const ref = event.payload.issue
       return maybePostFavroComments({
-				type: 'issue',
-				url: ref.html_url,
-				title: ref.title,
-				body: ref.body,
-				author: ref.user,
+        type: 'issue',
+        url: ref.html_url,
+        title: ref.title,
+        body: ref.body,
+        author: ref.user,
         repo: event.payload.repository,
         favro,
-			})
+      })
     }
 
     /** Project card created, updated, or deleted. */
     case 'project_card': {
-			if (event.payload.action !== 'created') { break }
+      if (event.payload.action !== 'created') { break }
       const ref = event.payload.project_card
       return maybePostFavroComments({
-				type: 'project card',
-				url: ref.url,
-				title: ref.note,
-				author: ref.creator,
+        type: 'project card',
+        url: ref.url,
+        title: ref.note,
+        author: ref.creator,
         repo: event.payload.repository,
         favro,
-			})
+      })
     }
 
     /**
@@ -135,53 +136,54 @@ export async function githubEventToComments(
      * unlocked.
      */
     case 'pull_request': {
-			if (event.payload.action !== 'opened') { break }
+      if (event.payload.action !== 'opened') { break }
       const ref = event.payload.pull_request
       return maybePostFavroComments({
-				type: 'PR',
-				url: ref.html_url,
-				title: ref.title,
-				body: ref.body,
-				author: ref.user,
+        type: 'PR',
+        url: ref.html_url,
+        title: ref.title,
+        body: ref.body,
+        omitBody: true,
+        author: ref.user,
         repo: event.payload.repository,
         favro,
-			})
+      })
     }
 
     /** Pull request review submitted, edited, or dismissed. */
     case 'pull_request_review': {
-			if (event.payload.action !== 'submitted') { break }
+      if (event.payload.action !== 'submitted') { break }
       const ref = event.payload.review
       return maybePostFavroComments({
-				type: 'PR review',
-				url: ref.html_url,
-				body: ref.body,
-				author: ref.user,
+        type: 'PR review',
+        url: ref.html_url,
+        body: ref.body,
+        author: ref.user,
         repo: event.payload.repository,
         favro,
-			})
+      })
     }
 
     /** Pull request diff comment created, edited, or deleted. */
     case 'pull_request_review_comment': {
-			if (event.payload.action !== 'created') { break }
+      if (event.payload.action !== 'created') { break }
       const ref = event.payload.comment
       return maybePostFavroComments({
-				type: 'PR review comment',
-				url: ref.html_url,
-				body: ref.body,
-				author: ref.user,
+        type: 'PR review comment',
+        url: ref.html_url,
+        body: ref.body,
+        author: ref.user,
         repo: event.payload.repository,
         favro,
-			})
+      })
     }
 
     /** Release created, edited, published, unpublished, or deleted. */
     case 'release': {
-			if (event.payload.action !== 'created') { break }
+      if (event.payload.action !== 'created') { break }
       const ref = event.payload
-			// TODO: Should this be shared? Maybe not given that release notes often
-			// include commit titles that could reference many favro cards.
+      // TODO: Should this be shared? Maybe not given that release notes often
+      // include commit titles that could reference many favro cards.
       return []
     }
   }
@@ -191,28 +193,29 @@ export async function githubEventToComments(
 
 export async function maybePostFavroComments(opts: {
   favro: Favro,
-	type: string,
-	url: string,
-	title?: string | null,
-	body?: string | null,
-	repo?: Repository,
-	author: User | { name?: string | null, username?: string | null, email?: string | null } | string,
-	authorUrl?: string,
+  type: string,
+  url: string,
+  title?: string | null,
+  body?: string | null,
+  omitBody?: boolean,
+  repo?: Repository,
+  author: User | { name?: string | null, username?: string | null, email?: string | null } | string,
+  authorUrl?: string,
 }): Promise<FavroComment[]> {
   const favro = opts.favro.org && opts.favro.auth
     ? opts.favro as { org: string, auth: string }
     : undefined
 
-	let haystack = opts.title || ''
-	if (opts.body) {
-		haystack += ' ' + opts.body
-	}
+  let haystack = opts.title || ''
+  if (opts.body) {
+    haystack += ' ' + opts.body
+  }
 
   const idRegexp = new RegExp(`(?:^|[^a-z_-])${opts.favro.prefix}-([0-9]+)(?:$|[^a-z_-])`, 'gi')
   const cardIds = [...haystack.matchAll(idRegexp)].map(m => m[1])
 
   if (!cardIds.length) {
-		favro && console.log('No favro reference found in', opts.type, opts.url)
+    favro && console.log('No favro reference found in', opts.type, opts.url)
     return []
   } else {
     favro && console.log(
@@ -223,31 +226,31 @@ export async function maybePostFavroComments(opts: {
     )
   }
 
-	let { author, authorUrl } = opts
-	if (typeof author === 'object') {
-		const authorAny = author as any
+  let { author, authorUrl } = opts
+  if (typeof author === 'object') {
+    const authorAny = author as any
     // User object unfortunately doesn't include name, only login
-		author = author.name || authorAny.login || authorAny.username || author.email
-		authorUrl ??= authorAny.html_url || authorAny.url
+    author = author.name || authorAny.login || authorAny.username || author.email
+    authorUrl ??= authorAny.html_url || authorAny.url
     if (!authorUrl && (authorAny.login || authorAny.username)) {
       authorUrl = 'https://github.com/' + (authorAny.login || authorAny.username)
     }
-	}
-	author ||= 'unknown'
-	if (authorUrl) {
-		author = `[${author}](${authorUrl})`
-	}
+  }
+  author ||= 'unknown'
+  if (authorUrl) {
+    author = `[${author}](${authorUrl})`
+  }
 
   // Capitalize first letter of type for proper sentence casing
   const type = opts.type.charAt(0).toUpperCase() + opts.type.slice(1)
 
-	const comment = [
-		`[${type}](${opts.url})`,
-		!!opts.repo && `*in [${opts.repo.full_name}](${opts.repo.html_url})*`,
-		!!author && `*by ${author}*:`,
-		!!opts.title && `\n[**${opts.title}**](${opts.url})`,
-		!!opts.body && `\n${opts.body}`,
-	].filter(Boolean).join(' ')
+  const comment = [
+    `[${type}](${opts.url})`,
+    !!opts.repo && `*in [${opts.repo.full_name}](${opts.repo.html_url})*`,
+    !!author && `*by ${author}*:`,
+    !!opts.title && `\n[**${opts.title}**](${opts.url})`,
+    !!opts.body && !opts.omitBody && `\n${opts.body}`,
+  ].filter(Boolean).join(' ')
 
   if (favro) {
     console.log(`Generated comment:\n${comment}\n`)
